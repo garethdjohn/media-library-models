@@ -32,20 +32,79 @@ jobs:
       - attach_workspace:
           at: .
       - run: npm test
+  
+  build:
+    working_directory: ~/node-github-fow-circle-ci-starter
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Build package'
+          command: npm run-script build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  publish:
+    working_directory: ~/node-github-fow-circle-ci-starter
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Configure NPM authentication token
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      - run:
+          name: Publish package
+          command: npm publish
 
 workflows:
   version: 2
-  feature-branches:
+  install-and-test:
     jobs:
       - install:
           filters:
             branches:
               only:
-                - /feature\/.*/
+                - /^feature\/.*/
       - unit-test:
           requires:
             - install
           filters:
             branches:
               only:
-                - /feature\/.*/
+                - /^feature\/.*/
+  install-and-publish:
+    jobs:
+      - install:
+          filters:
+            branches:
+              ignore:
+                - /.*/
+            tags:
+              only:
+                - /^v\d+\.\d+\.\d+/
+      - build:
+          requires:
+            - install
+          filters:
+            branches:
+              ignore:
+                - /.*/
+            tags:
+              only:
+                - /^v\d+\.\d+\.\d+/
+      - publish:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - /.*/
+            tags:
+              only:
+                - /^v\d+\.\d+\.\d+/
