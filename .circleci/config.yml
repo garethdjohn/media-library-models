@@ -1,7 +1,7 @@
 version: 2
 jobs:
   install:
-    working_directory: ~/node-github-flow-circle-ci-starter
+    working_directory: ~/media-library-models
     docker:
       - image: circleci/node:lts
     steps:
@@ -24,7 +24,7 @@ jobs:
             - .
 
   unit-test:
-    working_directory: ~/node-github-flow-circle-ci-starter
+    working_directory: ~/media-library-models
     docker:
       - image: circleci/node:lts
 
@@ -34,7 +34,7 @@ jobs:
       - run: npm test
   
   build:
-    working_directory: ~/node-github-fow-circle-ci-starter
+    working_directory: ~/media-library-models
     docker:
       - image: circleci/node:lts
     steps:
@@ -49,7 +49,7 @@ jobs:
             - .
 
   publish:
-    working_directory: ~/node-github-fow-circle-ci-starter
+    working_directory: ~/media-library-models
     docker:
       - image: circleci/node:lts
     steps:
@@ -60,7 +60,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
       - run:
           name: Publish package
-          command: npm publish
+          command: npm publish --access public
 
 workflows:
   version: 2
